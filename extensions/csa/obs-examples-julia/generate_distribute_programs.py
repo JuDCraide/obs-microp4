@@ -1,6 +1,3 @@
-from ctypes import sizeof
-
-
 topology = [
     {
         "switchname": "s1",
@@ -21,7 +18,7 @@ topology = [
         "template": "../../templates/common_ethernet_template.up4",
     },
 ]
-destination = "./example-julia/distribute_programs.sh"
+destination = "./example-julia/generated_distribute_programs.sh"
 allModules = ["ipv4", "ipv6"]
 modules = set()
 
