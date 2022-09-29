@@ -1,42 +1,65 @@
-topology = [
+topology_e1 = [
     {
         "switchname": "s1",
-        "module": "all",
+        "modules": "all",
         "filename": "obs_main",
         "template": "../../templates/common_ethernet_template.up4",
     },
     {
         "switchname": "s2",
-        "module": "ipv4",
+        "modules": "ipv4",
         "filename": "obs_main",
         "template": "../../templates/common_ethernet_template.up4",
     },
     {
         "switchname": "s3",
-        "module": "ipv6",
+        "modules": "ipv6",
         "filename": "obs_main",
         "template": "../../templates/common_ethernet_template.up4",
     },
 ]
+topology_e2 = [
+    {
+        "switchname": "s1",
+        "modules": "all",
+        "filename": "obs_main_nat.up4",
+        "template": "../../templates/common_ethernet_template.up4",
+    },
+    {
+        "switchname": "s2",
+        "modules": "ipv4_nat",
+        "filename": "obs_main_nat.up4",
+        "template": "../../templates/nat_template.up4",
+    },
+    {
+        "switchname": "s3",
+        "modules": "ipv4,ipv6",
+        "filename": "obs_main_nat.up4",
+        "template": "../../templates/common_ethernet_template.up4",
+    },
+]
+topology= topology_e2
 destination = "./example-julia/generated_distribute_programs.sh"
-allModules = ["ipv4", "ipv6"]
+allModulesTopology1 = ["ipv4", "ipv6"]
+allModulesTopology2 = ["ipv4_nat_acl","ipv4", "ipv6"]
+allModules=allModulesTopology2
 modules = set()
 
 f = open(destination, "w")
 
 f.write('sudo mn -c\n')
 f.write('\necho -e "\\n*********************************"\n')
-f.write('echo -e "\\n Generating switch programs with a template "\n')
+f.write('echo -e "\\n Generating switch programs with a template"\n')
 
 for switch in topology:
-    line = 'python ../generate_switch_program_w_template.py --switchname {0} --module {1} --filename {2} --template {3}\n'.format(
+    line = 'python ../../generate_switch_program_w_template.py --switchname {0} --modules {1} --filename {2} --template {3}\n'.format(
         switch["switchname"],
-        switch["module"],
+        switch["modules"],
         switch["filename"],
         switch["template"],
     )
     f.write(line)
-    switchModules = switch["module"].split(",")
+    switchModules = switch["modules"].split(",")
     switch["modulesParsed"] = switchModules
     for module in switchModules:
         if (module == "all"):
@@ -71,7 +94,7 @@ for switch in topology:
 f.write('\necho -e "\\n*********************************"\n')
 f.write('echo -e "\\n Compiling P4 programs "\n')
 for switch in topology:
-    line = '../../p4c-compile.sh {0}_{1}_main_v1model.p4\n'.format(switch["switchname"], switch["module"])
+    line = '../../p4c-compile.sh {0}_{1}_main_v1model.p4\n'.format(switch["switchname"], switch["modules"])
     f.write(line)
 
 f.write('\nbold=$(tput bold)\n')
@@ -88,7 +111,7 @@ f.write('sudo bash -c "export P4_MININET_PATH=${P4_MININET_PATH} ;  \\ \n')
 f.write('  $BMV2_MININET_PATH/obs_simple_topo_v1model_sw.py --behavioral-exe $BMV2_SIMPLE_SWITCH_BIN \\ \n')
 f.write('  --num-hosts 4 ')
 for i, switch in enumerate(topology):
-    line = '--json{0} ./{1}_{2}_main_v1model.json '.format( i+1, switch["switchname"], switch["module"])
+    line = '--json{0} ./{1}_{2}_main_v1model.json '.format( i+1, switch["switchname"], switch["modules"])
     f.write(line)
 f.write('"\n')
 
