@@ -2,9 +2,9 @@ sudo mn -c
 
 echo -e "\n*********************************" 
 echo -e "\n Generating switch programs with a template "
-python ../../generate_switch_program_w_template.py --switchname s1 --module all --filename obs_main.up4 --template ../../templates/common_ethernet_template.up4
-python ../../generate_switch_program_w_template.py --switchname s2 --module ipv4 --filename obs_main.up4 --template ../../templates/common_ethernet_template.up4
-python ../../generate_switch_program_w_template.py --switchname s3  --module ipv6 --filename obs_main.up4 --template ../../templates/common_ethernet_template.up4
+python ../../generate_switch_program_w_template.py --switchname s1 --modules all --filename obs_main.up4 --template ../../templates/common_ethernet_template.up4
+python ../../generate_switch_program_w_template.py --switchname s2 --modules ipv4 --filename obs_main.up4 --template ../../templates/common_ethernet_template.up4
+python ../../generate_switch_program_w_template.py --switchname s3  --modules ipv6 --filename obs_main.up4 --template ../../templates/common_ethernet_template.up4
 
 echo -e "\n*********************************" 
 echo -e "\n Compiling uP4 includes "
