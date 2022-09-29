@@ -71,7 +71,7 @@ for switch in topology:
 f.write('\necho -e "\\n*********************************"\n')
 f.write('echo -e "\\n Compiling P4 programs "\n')
 for switch in topology:
-    line = '../../p4c-compile.sh {0}_all_main_v1model.p4\n'.format(switch["switchname"])
+    line = '../../p4c-compile.sh {0}_{1}_main_v1model.p4\n'.format(switch["switchname"], switch["module"])
     f.write(line)
 
 f.write('\nbold=$(tput bold)\n')
@@ -88,7 +88,7 @@ f.write('sudo bash -c "export P4_MININET_PATH=${P4_MININET_PATH} ;  \\ \n')
 f.write('  $BMV2_MININET_PATH/obs_simple_topo_v1model_sw.py --behavioral-exe $BMV2_SIMPLE_SWITCH_BIN \\ \n')
 f.write('  --num-hosts 4 ')
 for i, switch in enumerate(topology):
-    line = '--json{0} ./{1}_{2}_main_v1model.json '.format( i+1, switch["filename"], switch["module"])
+    line = '--json{0} ./{1}_{2}_main_v1model.json '.format( i+1, switch["switchname"], switch["module"])
     f.write(line)
 f.write('"\n')
 
