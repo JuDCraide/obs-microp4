@@ -1,55 +1,19 @@
-topology_e1 = [
-    {
-        "switchname": "s1",
-        "modules": "all",
-        "filename": "obs_main",
-        "template": "../../templates/common_ethernet_template.up4",
-    },
-    {
-        "switchname": "s2",
-        "modules": "ipv4",
-        "filename": "obs_main",
-        "template": "../../templates/common_ethernet_template.up4",
-    },
-    {
-        "switchname": "s3",
-        "modules": "ipv6",
-        "filename": "obs_main",
-        "template": "../../templates/common_ethernet_template.up4",
-    },
-]
-topology_e2 = [
-    {
-        "switchname": "s1",
-        "modules": "all",
-        "filename": "obs_main_nat.up4",
-        "template": "../../templates/common_ethernet_template.up4",
-    },
-    {
-        "switchname": "s2",
-        "modules": "ipv4_nat",
-        "filename": "obs_main_nat.up4",
-        "template": "../../templates/nat_template.up4",
-    },
-    {
-        "switchname": "s3",
-        "modules": "ipv4,ipv6",
-        "filename": "obs_main_nat.up4",
-        "template": "../../templates/common_ethernet_template.up4",
-    },
-]
-topology= topology_e2
+import json
+
+with open('topology-json/topology_e1.json', 'r') as file:
+    topology = json.load(file)
+
 destination = "./example-julia/generated_distribute_programs.sh"
 allModulesTopology1 = ["ipv4", "ipv6"]
 allModulesTopology2 = ["ipv4_nat_acl","ipv4", "ipv6"]
-allModules=allModulesTopology2
+allModules=allModulesTopology1
 modules = set()
 
 f = open(destination, "w")
 
 f.write('sudo mn -c\n')
 f.write('\necho -e "\\n*********************************"\n')
-f.write('echo -e "\\n Generating switch programs with a template"\n')
+f.write('echo -e "\\n Generating switch programs with a template "\n')
 
 for switch in topology:
     line = 'python ../../generate_switch_program_w_template.py --switchname {0} --modules {1} --filename {2} --template {3}\n'.format(
@@ -70,14 +34,14 @@ for switch in topology:
             modules.add(module)
 
 f.write('\necho -e "\\n*********************************"\n')
-f.write('echo -e "\\n Compiling uP4 includes"\n')
+f.write('echo -e "\\n Compiling uP4 includes "\n')
 for module in modules:
     fixedPart = "${UP4ROOT}/build/p4c-msa -I ${UP4ROOT}/build/p4include"
     line = '{0} -o {1}.json {2}.up4\n'.format(fixedPart, module, module)
     f.write(line)
 
 f.write('\necho -e "\\n*********************************"\n')
-f.write('echo -e "\\n Compiling uP4 main programs"\n')
+f.write('echo -e "\\n Compiling uP4 main programs \\n"\n')
 for switch in topology:
     submodules = ""
     for i, module in enumerate(switch["modulesParsed"]):
@@ -87,8 +51,8 @@ for switch in topology:
         else: submodules += " "
     p4cMsa = "${UP4ROOT}/build/p4c-msa"
     p4include = "${UP4ROOT}/build/p4include"
-    line = '{0} --target-arch v1model -I {1}  -l {2}{3}_all_main.up4\n'.format(
-        p4cMsa, p4include, submodules, switch["switchname"])
+    line = '{0} --target-arch v1model -I {1}  -l {2}{3}_{4}_main.up4\n'.format(
+        p4cMsa, p4include, submodules, switch["switchname"], switch["modules"])
     f.write(line)
 
 f.write('\necho -e "\\n*********************************"\n')
@@ -115,5 +79,5 @@ for i, switch in enumerate(topology):
     f.write(line)
 f.write('"\n')
 
-f.write('echo -e "\\n*********************************\\n${normal}"\n')
+f.write('echo -e "*********************************\\n${normal}"\n')
 f.close()
