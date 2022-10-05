@@ -1,12 +1,12 @@
 import json
 
-with open('topology-json/topology_e1.json', 'r') as file:
+with open('topology-json/topology_e2.json', 'r') as file:
     topology = json.load(file)
 
 destination = "./example-julia/generated_distribute_programs.sh"
 allModulesTopology1 = ["ipv4", "ipv6"]
 allModulesTopology2 = ["ipv4_nat_acl","ipv4", "ipv6"]
-allModules=allModulesTopology1
+allModules=allModulesTopology2
 modules = set()
 
 f = open(destination, "w")
@@ -23,6 +23,7 @@ for switch in topology:
         switch["template"],
     )
     f.write(line)
+    switch["modulesString"] = switch["modules"].replace(",","_")
     switchModules = switch["modules"].split(",")
     switch["modulesParsed"] = switchModules
     for module in switchModules:
@@ -58,7 +59,7 @@ for switch in topology:
 f.write('\necho -e "\\n*********************************"\n')
 f.write('echo -e "\\n Compiling P4 programs "\n')
 for switch in topology:
-    line = '../../p4c-compile.sh {0}_{1}_main_v1model.p4\n'.format(switch["switchname"], switch["modules"])
+    line = '../../p4c-compile.sh {0}_{1}_main_v1model.p4\n'.format(switch["switchname"], switch["modulesString"])
     f.write(line)
 
 f.write('\nbold=$(tput bold)\n')
@@ -75,7 +76,7 @@ f.write('sudo bash -c "export P4_MININET_PATH=${P4_MININET_PATH} ;  \\ \n')
 f.write('  $BMV2_MININET_PATH/obs_simple_topo_v1model_sw.py --behavioral-exe $BMV2_SIMPLE_SWITCH_BIN \\ \n')
 f.write('  --num-hosts 4 ')
 for i, switch in enumerate(topology):
-    line = '--json{0} ./{1}_{2}_main_v1model.json '.format( i+1, switch["switchname"], switch["modules"])
+    line = '--json{0} ./{1}_{2}_main_v1model.json '.format( i+1, switch["switchname"], switch["modulesString"])
     f.write(line)
 f.write('"\n')
 
